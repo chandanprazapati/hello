@@ -1,0 +1,130 @@
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { FaPlus } from "react-icons/fa";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import CommonHeaderDesign from "../../reusableDesign/CommonHeaderDesign";
+import AddButton from "../../reusableDesign/AddButton";
+import { createWorkArea } from "../../../services/apiServices/planning/workArea/workAreaService";
+import { workAreaValidationResolver } from "../../../utils/validateField";
+import { detailSchema } from "../../../schema/common";
+import { createUpaChetraDetail } from "../../../services/apiServices/planning/upaChetraDetail/upachetraDetailService";
+import { upaChetra } from "../../../services/apiServices/planning/upaChetra/upaChetraService";
+
+const CreateUpaChetraDetail = ({ clickedIdData }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+  } = useForm({ resolver: detailSchema });
+
+  // to set the incoming value to the respective fields
+  useEffect(() => {
+    setValue("upaChetraDetailId", clickedIdData?.upaChetraDetailId);
+    setValue("detail", clickedIdData?.detail);
+    setUpaChetraId(clickedIdData?.upaChetraId);
+  }, [clickedIdData]);
+
+  const router = useRouter();
+
+  const onSubmit = (data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (upaChetraId === null) {
+          setMsg("उप क्षेत्र छान्नुहोस्");
+        }
+       else {data = {...data,upaChetraId:upaChetraId}};
+        try {
+          createUpaChetraDetail(data).then((response) => {
+            if (response.status === true) {
+              toast.success(response.message, {
+                icon: "🚀",
+                autoClose: 1000,
+              });
+              router.push("/planning/upachetradetail");
+              return;
+            } else response.status === false;
+            {
+              toast.error(response.message, {
+                icon: "🚀",
+                autoClose: 1000,
+              });
+            }
+            return;
+          });
+        } catch (error) {
+          toast.error(error.message);
+        }
+        resolve();
+      }, 2000);
+    });
+  };
+
+  const [upaChetraId, setUpaChetraId] = useState(null);
+  const [upaChetraApiData, setUpaChetraApiData] = useState([]);
+  const [msg,setMsg] = useState("");
+
+  const handleUpaChetra = (e) => {
+    setUpaChetraId(e.target.value);
+  };
+
+  useEffect(() => {
+    let upaChetraApiDataX = () => {
+      upaChetra().then((response) => {
+        try {
+          response.status === true;
+          {
+            setUpaChetraApiData(response.data);
+          }
+        } catch (error) {}
+      });
+    };
+    upaChetraApiDataX();
+  }, [setUpaChetraApiData]);
+
+  return (
+    <>
+      <CommonHeaderDesign title={"उप क्षेत्र राख्नुहोस"} />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+          <div className="relative z-0 w-full mb-6 group">
+            <input
+              type="string"
+              className="peer"
+              {...register("detail")}
+              placeholder="."
+            />
+            <label className="label">खर्च शीर्षक</label>
+            <p> {errors?.detail?.message}</p>
+          </div>
+
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">उप क्षेत्र </label>
+            <select onChange={handleUpaChetra} value = {upaChetraId} className="peer">
+              <option value={null}> --- उप क्षेत्र चयन गर्नुहोस् --- </option>
+              {upaChetraApiData.map((items, index) => {
+                return (
+                  <>
+                    <option value={items.upaChetraId} key={index}>
+                      {items.upaChettra}
+                    </option>
+                  </>
+                );
+              })}
+            </select>
+            {msg}
+          </div>
+        </div>
+
+        <AddButton
+          icon={<FaPlus />}
+          title={isSubmitting ? "Submitting..." : "सुरक्षित गर्नुहोस् "}
+          disabled={isSubmitting}
+        />
+      </form>
+    </>
+  );
+};
+
+export default CreateUpaChetraDetail;

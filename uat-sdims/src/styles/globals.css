@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base{
+body{
+@apply dark:bg-slate-300
+}
+  form input{
+    @apply block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 
+  }
+
+  form input.requiredField{
+    @apply block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-red-500 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 
+  }
+
+  form select.requiredField{
+    @apply block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-red-500 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 
+  }
+  .label{
+    @apply peer-focus:font-medium absolute text-sm text-gray-500 dark:text-blue-900 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6
+  }
+  form p{
+    @apply text-red-500 text-xs
+  }
+  form select {
+  @apply block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-300
+  }
+  form span.requiredField{
+    @apply text-red-500 text-lg
+  }
+}
+.slick-prev {
+  left: 3% !important;
+  z-index: 1;
+}
+
+.slick-next {
+  right: 3% !important;
+  z-index: 1;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes drop {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-drop {
+  animation: drop 2s ease-in-out;
+}
+
+@keyframes up {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-up {
+  animation: up 1s ease-in-out;
+}
+.full-screen {
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px; /* Adjust this value for the desired gap between images */
+}
+
+.image-container {
+  flex: 0 0 calc(25% - 1rem); /* 4 images in a row with a gap of 2rem */
+  max-width: calc(25% - 1rem);
+}
+
+
+/* for enlarge the image starts */
+.lightbox-overlay { 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox-overlay.open {
+  display: flex;
+}
+
+.lightbox-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.lightbox-image {
+  cursor: pointer;
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 5px 10px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* for enlarge the image ends */

@@ -1,0 +1,86 @@
+{
+    "links": [
+       {
+          "id": 1,
+          "title": "Links", 
+          "comps":[
+            {
+                "id": 1,
+                "title": "Home"
+                },
+                {
+                "id": 2,
+                "title": "About Us"
+                },
+                {
+                "id": 3,
+                "title": "Features"
+                },
+                {
+                "id": 4,
+                "title": "Pricing"
+                }
+          ]
+       },
+       {
+          "id": 2,
+          "title": "Legal", 
+          "comps":[
+            {
+                "id": 1,
+                "title": "Terms of use"
+                },
+                {
+                "id": 2,
+                "title": "Terms of conditions"
+                },
+                {
+                "id": 3,
+                "title": "Privacy policy"
+                },
+                {
+                "id": 4,
+                "title": "Cookie policy"
+                }
+          ]
+       },
+       {
+          "id": 3,
+          "title": "Products",
+          "comps":[
+            {
+                "id": 1,
+                "title": "Website "
+                },
+                {
+                "id": 2,
+                "title": "E-commerce"
+                },
+                {
+                "id": 3,
+                "title": "Blogs"
+                },
+                {
+                "id": 4,
+                "title": "CRM"
+                },
+                {
+                "id": 5,
+                "title": "Sales"
+                },
+                {
+                "id": 6,
+                "title": "Invoicing"
+                },
+                {
+                "id": 7,
+                "title": "Project"
+                },
+                {
+                "id":8,
+                "title": "Others"
+                }
+          ]
+       }
+    ]
+ }
