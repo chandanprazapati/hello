@@ -234,7 +234,7 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
           १.व्यक्तिगत विवरण
         </div>
 
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+        <div className="grid lg:grid-cols-4 gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
@@ -245,16 +245,6 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
             <label className="label">
               पूरा नाम थर <span className="requiredField">*</span>{" "}
             </label>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <input
-              type="string"
-              className="peer"
-              {...register("fullName")}
-              placeholder="."
-            />
-            <label className="label">पूरा नाम थर (In English)</label>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
@@ -421,7 +411,7 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
         <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
           २. घर जग्गाको विवरण
         </div>
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+        <div className="grid lg:grid-cols-4 gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
@@ -430,7 +420,7 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
               placeholder="."
             />
             <label className="label">
-              घर नं. <span className="requiredField">*</span>{" "}
+              घर नं. <span className="requiredField">*</span>
             </label>
           </div>
 
@@ -458,13 +448,12 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
             </label>
           </div>
 
-
           <div className="relative  w-full mb-6 group">
             <label
               htmlFor=""
               className=" absolute text-[10px] text-blue-900 -top-[15%] "
             >
-              निर्माण मिति 
+              निर्माण मिति
             </label>
 
             <NepaliDatePicker
@@ -474,8 +463,6 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
               options={{ calenderLocale: "ne", valueLocale: "en" }}
             />
           </div>
-
-       
 
           <div className="relative z-0 w-full mb-6 group">
             <input
@@ -541,7 +528,7 @@ export default function CreateGharJaggaKar({ clickedIdData }) {
         <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
           ३. जग्गा ठेगाना
         </div>
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+        <div className="grid lg:grid-cols-4 gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">प्रदेश</label>
             <select {...register("permaPradeshId")} className="peer">

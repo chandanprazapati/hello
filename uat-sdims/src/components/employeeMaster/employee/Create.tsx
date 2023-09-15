@@ -74,7 +74,7 @@ const Create = (employee: EmployeeInterface, loading: boolean) => {
 
   const onSubmit = async (formData: any) => {
     try {
-      let res = await createEmployee(formData).then((response) => {
+      let response = await createEmployee(formData).then((response) => {
         if (response.status === true) {
           toast.success(response.message, {
             icon: "🚀",

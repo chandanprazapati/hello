@@ -4,8 +4,10 @@ import dynamic from "next/dynamic";
 import SeoOptimization from "../../../../components/reusableDesign/SeoOptimzation";
 import LoadingSpinner from "../../../../components/reusableDesign/Loading";
 import { appointment } from "../../../../services/apiServices/common/appointment/appointmentService";
+import { toast } from "react-toastify";
+import { updateFarakJanmaMitiData } from "../../../../services/apiServices/sifarish/farakFarakJanmaMiti/farakFarakJanmaMitiService";
 
-const CreateFarakFarakJanmaMiti= dynamic(() => import("./"), {
+const CreateFarakFarakJanmaMiti = dynamic(() => import("./index"), {
   ssr: false,
 });
 
@@ -17,8 +19,11 @@ export default function CreateFarakFarakJanmaMitiId() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!query.id) return;
       try {
-        const { status, data, message } = await appointment();
+        const { status, data, message } = await updateFarakJanmaMitiData(
+          query.id
+        );
         if (status === true) {
           setApiData(data);
           setLoading(false);
@@ -34,22 +39,17 @@ export default function CreateFarakFarakJanmaMitiId() {
     };
 
     fetchData();
-  }, []);
-
-  const filteredData = useMemo(
-    () => apiData.find((item) => item.id === parseInt(query.id)),
-    [apiData, query.id]
-  );
+  }, [query.id]);
   return (
     <React.Fragment>
-      <SeoOptimization title={"Char Killa"} />
+      <SeoOptimization title={"farak Farak Janma Miti"} />
 
       {loading ? (
         <LoadingSpinner />
       ) : error ? (
         <p>{error}</p>
       ) : (
-        <CreateFarakFarakJanmaMiti clickedIdData={filteredData} />
+        <CreateFarakFarakJanmaMiti clickedIdData={apiData} />
       )}
     </React.Fragment>
   );

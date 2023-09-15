@@ -4,8 +4,10 @@ import dynamic from "next/dynamic";
 import SeoOptimization from "../../../../components/reusableDesign/SeoOptimzation";
 import LoadingSpinner from "../../../../components/reusableDesign/Loading";
 import { appointment } from "../../../../services/apiServices/common/appointment/appointmentService";
+import { toast } from "react-toastify";
+import { updateSadakKhanne } from "../../../../services/apiServices/sifarish/sadakKhanee/sadakKhanneService";
 
-const CreateSadakKhanne = dynamic(() => import("./"), {
+const CreateSadakKhanne = dynamic(() => import("./index"), {
   ssr: false,
 });
 
@@ -17,8 +19,9 @@ export default function CreateSadakKhanneId() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!query.id) return;
       try {
-        const { status, data, message } = await appointment();
+        const { status, data, message } = await updateSadakKhanne(query.id);
         if (status === true) {
           setApiData(data);
           setLoading(false);
@@ -34,12 +37,12 @@ export default function CreateSadakKhanneId() {
     };
 
     fetchData();
-  }, []);
+  }, [query.id]);
 
-  const filteredData = useMemo(
-    () => apiData.find((item) => item.id === parseInt(query.id)),
-    [apiData, query.id]
-  );
+  // const filteredData = useMemo(
+  //   () => apiData.find((item) => item.id === parseInt(query.id)),
+  //   [apiData, query.id]
+  // );
   return (
     <React.Fragment>
       <SeoOptimization title={"Sadak Khanne"} />
@@ -49,7 +52,7 @@ export default function CreateSadakKhanneId() {
       ) : error ? (
         <p>{error}</p>
       ) : (
-        <CreateSadakKhanne clickedIdData={filteredData} />
+        <CreateSadakKhanne clickedIdData={apiData} />
       )}
     </React.Fragment>
   );

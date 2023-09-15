@@ -17,7 +17,8 @@ import AddButton from "../../../../components/reusableDesign/AddButton";
 import { ward } from "../../../../services/apiServices/common/ward/wardService";
 import { aadivasiValidationResolver } from "../../../../utils/validateField";
 import { gender } from "../../../../services/apiServices/common/gender/genderService";
-import { TextareaAutosize } from "@mui/material";
+import { Checkbox, FormControlLabel, TextareaAutosize } from "@mui/material";
+import { insertGharBatoPramanit } from "../../../../services/apiServices/sifarish/gharBatoPramanit/gharBatoPramanitService";
 const aa = new BikramSambat(new Date()).toBS();
 
 export default function CreateGharBato({ clickedIdData }) {
@@ -26,87 +27,125 @@ export default function CreateGharBato({ clickedIdData }) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     // resolver: aadivasiValidationResolver,
-    // defaultValues: {
-    //   id: clickedIdData?.id,
-    //   nameThar: clickedIdData?.nameThar,
-    //   fullName: clickedIdData?.fullName,
-    //   genderId: clickedIdData?.genderId,
-    //   permaPradeshId: clickedIdData?.permaPradeshId,
-    //   prmajillaId: clickedIdData?.prmajillaId,
-    //   permaPalikaId: clickedIdData?.permaPalikaId,
-    //   permaWardNo: clickedIdData?.permaWardNo,
-    //   nagritaPraPaNo: clickedIdData?.nagritaPraPaNo,
-    //   nagariktaIssueDistrictId: clickedIdData?.nagariktaIssueDistrictId,
-    //   grandfatherNaamThar: clickedIdData?.grandfatherNaamThar,
-    //   grandfatherFullName: clickedIdData?.grandfatherFullName,
-    //   fatherNaamThar: clickedIdData?.fatherNaamThar,
-    //   fatherFullName: clickedIdData?.fatherFullName,
-    //   jaati: clickedIdData?.jaati,
-    //   aadibasiTypeId: clickedIdData?.aadibasiTypeId,
-    //   govtSuchikrit: clickedIdData?.govtSuchikrit,
-    // },
+    defaultValues: {
+      id: clickedIdData?.id,
+      name: clickedIdData?.name,
+      area: clickedIdData?.area,
+      landRate: clickedIdData?.landRate,
+      houseRate: clickedIdData?.houseRate,
+      kittaNo: clickedIdData?.kittaNo,
+      sitNo: clickedIdData?.sitNo,
+      gharKisim: clickedIdData?.gharKisim,
+      batoPrakar: clickedIdData?.batoPrakar,
+      kaifiyat: clickedIdData?.kaifiyat,
+    },
   });
 
   const onSubmit = async (data) => {
-    data = {
-      ...data,
-      nagariktIssueDate: nagariktIssueDate,
-     
-    };
-
-    console.log(data, "data");
-    // try {
-    //   const response = await insertAwabihawit(data);
-    //   if (response.status === true) {
-    //     toast.success(response.message, {
-    //       icon: "🚀",
-    //       autoClose: 1000,
-    //     });
-    //     router.push("/sifarish/adivasi");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    console.log(data, "GharBato--data");
+    try {
+      const response = await insertGharBatoPramanit(data);
+      if (response.status === true) {
+        toast.success(response.message, {
+          icon: "🚀",
+          autoClose: 1000,
+        });
+        router.push("/sifarish/gharBato");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // for district option data fetching and displayed down side
-  const [apiDataDistrict, setApiDataDistrict] = useState([]);
+  //watch fields
+  const watchFields = watch();
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { status, data } = await getDistrict();
-        if (status) {
-          setApiDataDistrict(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
-  const nagritaDistrictOptions = apiDataDistrict.map((item) => {
-    return (
-      <option
-        value={item.districtId}
-        key={item.districtId}
-        selected={item.districtId === clickedIdData?.districtId}
-      >
-        {item.districtNameNep}
-      </option>
-    );
-  });
+    if (watchFields.isActive) {
+      setValue("tempState", watchFields.perState);
+      setValue("tempDistrict", watchFields.perDistrict);
+      setValue("tempPalika", watchFields.perPalika);
+      setValue("tempWard", watchFields.perWard);
+    } else {
+      setValue("tempState", "");
+      setValue("tempDistrict", "");
+      setValue("tempPalika", "");
+      setValue("tempWard", "");
+    }
+  }, [
+    setValue,
+    watchFields.isActive,
+    watchFields.perState,
+    watchFields.perDistrict,
+    watchFields.perPalika,
+    watchFields.perWard,
+  ]);
 
   // for state
-  const [stateData, setStateData] = useState([]);
+  const [parmanentStateData, setParmanentStateData] = useState([]);
+  const [temporaryStateData, setTemporaryStateData] = useState([]);
+  const [landStateData, setLandStateData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getAllState();
         if (response.status === true) {
-          setStateData(response.data);
+          setParmanentStateData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const parmanentStateOptions = parmanentStateData.map((item) => {
+    return (
+      <option
+        value={item.stateId}
+        key={item.stateId}
+        selected={item.stateId === clickedIdData?.perState}
+      >
+        {item.stateNameNep}
+      </option>
+    );
+  });
+  //for land
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllState();
+        if (response.status === true) {
+          setLandStateData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const landStateOptions = landStateData.map((item) => {
+    return (
+      <option
+        value={item.stateId}
+        key={item.stateId}
+        selected={item.stateId === clickedIdData?.landState}
+      >
+        {item.stateNameNep}
+      </option>
+    );
+  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllState();
+        if (response.status === true) {
+          setTemporaryStateData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -116,31 +155,28 @@ export default function CreateGharBato({ clickedIdData }) {
     fetchData();
   }, []);
 
-  // permanent address
-  const stateValue = watch("stateId");
-  const districtValue = watch("districtId");
-
-  const stateOptions = stateData.map((item) => {
+  const temporaryStateOptions = temporaryStateData.map((item) => {
     return (
       <option
         value={item.stateId}
         key={item.stateId}
-        selected={item.stateId === clickedIdData?.stateId}
+        selected={item.stateId === clickedIdData?.tempState}
       >
         {item.stateNameNep}
       </option>
     );
   });
+  // for district
+  const [parmanentdistrictData, setParmanentDistrictData] = useState([]);
+  const [temporarydistrictData, setTemporaryDistrictData] = useState([]);
+  const [landdistrictData, setLandDistrictData] = useState([]);
 
-  // district
-  const [districtData, setDistrictData] = useState([]);
-  //   const []
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getDistrict(stateValue);
+        const response = await getDistrict(watchFields?.perState);
         if (response.status === true) {
-          setDistrictData(response.data);
+          setParmanentDistrictData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -148,28 +184,51 @@ export default function CreateGharBato({ clickedIdData }) {
     };
 
     fetchData();
-  }, [stateValue]);
-
-  const districtOptions = districtData.map((item) => {
+  }, [watchFields?.perState]);
+  const parmanentDistrictOptions = parmanentdistrictData.map((item) => {
     return (
       <option
         value={item.districtId}
         key={item.districtId}
-        selected={item.districtId === clickedIdData?.districtId}
+        selected={item.districtId === clickedIdData?.perDistrict}
+      >
+        {item.districtNameNep}
+      </option>
+    );
+  });
+  //for land District
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getDistrict(watchFields?.landState);
+        if (response.status === true) {
+          setLandDistrictData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [watchFields?.landState]);
+  const landDistrictOptions = landdistrictData.map((item) => {
+    return (
+      <option
+        value={item.districtId}
+        key={item.districtId}
+        selected={item.districtId === clickedIdData?.landDistrict}
       >
         {item.districtNameNep}
       </option>
     );
   });
 
-  // palika
-  const [palikaData, setPalikaData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getPalika(districtValue);
+        const response = await getDistrict(watchFields?.tempState);
         if (response.status === true) {
-          setPalikaData(response.data);
+          setTemporaryDistrictData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -177,56 +236,186 @@ export default function CreateGharBato({ clickedIdData }) {
     };
 
     fetchData();
-  }, [districtValue]);
+  }, [watchFields?.tempState]);
 
-  const palikaOptions = palikaData.map((item) => {
+  const temporaryDistrictOptions = temporarydistrictData.map((item) => {
+    return (
+      <option
+        value={item.districtId}
+        key={item.districtId}
+        selected={item.districtId === clickedIdData?.tempDistrict}
+      >
+        {item.districtNameNep}
+      </option>
+    );
+  });
+
+  // for palika
+  const [parmanentPalikaData, setParmanentPalikaData] = useState([]);
+  const [temporaryPalikaData, setTemporaryPalikaData] = useState([]);
+  const [landPalikaData, setLandPalikaData] = useState([]);
+
+  //for land Palika
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getPalika(watchFields?.landDistrict);
+        if (response.status === true) {
+          setLandPalikaData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [watchFields?.landDistrict]);
+  const landPalikaOptions = landPalikaData.map((item) => {
     return (
       <option
         value={item.palikaId}
         key={item.palikaId}
-        selected={item.palikaId === clickedIdData?.palikaId}
+        selected={item.palikaId === clickedIdData?.landPalika}
       >
         {item.palikaNameNep}
       </option>
     );
   });
 
-  // for ward
-  const [wardData, setWardData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { status, data } = await ward();
-        if (status) {
-          setWardData(data);
+        const response = await getPalika(watchFields?.perDistrict);
+        if (response.status === true) {
+          setParmanentPalikaData(response.data);
         }
       } catch (error) {
         console.error(error);
       }
     };
+
     fetchData();
-  }, []);
-  const wardOptions = wardData.map((item) => {
+  }, [watchFields?.perDistrict]);
+  const parmanentPalikaOptions = parmanentPalikaData.map((item) => {
+    return (
+      <option
+        value={item.palikaId}
+        key={item.palikaId}
+        selected={item.palikaId === clickedIdData?.perPalika}
+      >
+        {item.palikaNameNep}
+      </option>
+    );
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getPalika(watchFields?.tempDistrict);
+        if (response.status === true) {
+          setTemporaryPalikaData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [watchFields?.tempDistrict]);
+
+  const temporaryPalikaOptions = temporaryPalikaData.map((item) => {
+    return (
+      <option
+        value={item.palikaId}
+        key={item.palikaId}
+        selected={item.palikaId === clickedIdData?.tempPalika}
+      >
+        {item.palikaNameNep}
+      </option>
+    );
+  });
+
+  //for ward
+  const [parmanentWardData, setParmanentWardData] = useState([]);
+  const [temporaryWardData, setTemporaryWardData] = useState([]);
+  const [landWardData, setLandWardData] = useState([]);
+
+  //for land Ward
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await ward(watchFields?.landPalika);
+        if (response.status === true) {
+          setLandWardData(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [watchFields?.landPalika]);
+  const landWardOptions = landWardData.map((item) => {
     return (
       <option
         value={item.id}
         key={item.id}
-        selected={item.id === clickedIdData?.wardId}
+        selected={item?.id === clickedIdData?.landWard}
       >
         {item.name}
       </option>
     );
   });
 
-  // For date picker
-  const [nagariktIssueDate, setNagariktIssueDate] = useState(aa);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await ward(watchFields?.perPalika);
+        if (response.status === true) {
+          setParmanentWardData(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [watchFields?.perPalika]);
+  const parmanentWardOptions = parmanentWardData.map((item) => {
+    return (
+      <option
+        value={item.id}
+        key={item.id}
+        selected={item?.id === clickedIdData?.perWard}
+      >
+        {item.name}
+      </option>
+    );
+  });
 
   useEffect(() => {
-    if (clickedIdData) {
-      setNagariktIssueDate(clickedIdData?.nagariktIssueDate || aa);
-    }
-  }, [clickedIdData]);
+    const fetchData = async () => {
+      try {
+        const response = await ward(watchFields?.tempPalika);
+        if (response.status === true) {
+          setTemporaryWardData(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [watchFields?.tempPalika]);
 
+  const temporaryWardOptions = temporaryWardData.map((item) => {
+    return (
+      <option
+        value={item.id}
+        key={item.id}
+        selected={item?.id === clickedIdData?.tempWard}
+      >
+        {item.name}
+      </option>
+    );
+  });
 
   return (
     <>
@@ -241,7 +430,7 @@ export default function CreateGharBato({ clickedIdData }) {
             <input
               type="string"
               className="peer"
-              {...register("naamThar")}
+              {...register("name")}
               placeholder="."
             />
             <label className="label">पूरा नाम थर</label>
@@ -251,87 +440,79 @@ export default function CreateGharBato({ clickedIdData }) {
             <input
               type="string"
               className="peer"
-              {...register("fullName")}
-              placeholder="."
-            />
-            <label className="label">पूरा नाम थर (In English)</label>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <input
-              type="string"
-              className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("area")}
               placeholder="."
             />
             <label className="label">क्षेत्रफल </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.area?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("landRate")}
               placeholder="."
             />
             <label className="label">जग्गाको मुल्य </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.landRate?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("houseRate")}
               placeholder="."
             />
             <label className="label">घरको मुल्य </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.houseRate?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("kittaNo")}
               placeholder="."
             />
-            <label className="label  ">कित्ता नं <span className="text-red-500 text-lg " >*</span> </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <label className="label  ">
+              कित्ता नं <span className="text-red-500 text-lg ">*</span>{" "}
+            </label>
+            <p> {errors?.kittaNo?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("sitNo")}
               placeholder="."
             />
             <label className="label">सित नं. </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.sitNo?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("gharKisim")}
               placeholder="."
             />
             <label className="label">घर किसिम </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.gharKisim?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("nagariktaPraPaNo")}
+              {...register("batoPrakar")}
               placeholder="."
             />
             <label className="label">बाटो प्रकार </label>
-            <p> {errors?.nagariktaPraPaNo?.message}</p>
+            <p> {errors?.batoPrakar?.message}</p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -340,95 +521,94 @@ export default function CreateGharBato({ clickedIdData }) {
             <TextareaAutosize
               type="string"
               className="border-2 w-full pb-6 border-black"
-              {...register("remarks")}
+              {...register("kaifiyat")}
               placeholder="write something here......"
             />
           </div>
-
-         
         </div>
-
         <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
           (क).स्थायी ठेगाना
         </div>
-
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+        <div className="grid lg:grid-cols-4  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">प्रदेश</label>
-            <select {...register("permaPradeshId")} className="peer">
-              <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {stateOptions}
+            <select {...register("perState")} className="peer">
+              <option value={""}>--- प्रदेश छानुहोस ---</option>
+              {parmanentStateOptions}
             </select>
-            <p> {errors?.permaPradeshId?.message}</p>
+            <p> {errors?.perState?.message}</p>
           </div>
-
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">जिल्ला</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {districtOptions}
+            <select {...register("perDistrict")} className="peer">
+              <option value={""}>--- जिल्ला छानुहोस ---</option>
+              {parmanentDistrictOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.perDistrict?.message}</p>
           </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">वडा नं</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- वडा नं छान्नुहोस् ---</option>
-              {wardOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">गा.पा./न.पा.</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {palikaOptions}
+            <select {...register("perPalika")} className="peer">
+              <option value={""}>--- गा.पा./न.पा. छानुहोस ---</option>
+              {parmanentPalikaOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.perPalika?.message}</p>
           </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label">वडा नं</label>
+            <select className="peer" {...register("perWard")}>
+              <option value={""}>--- वडा नं छानुहोस ---</option>
+              {parmanentWardOptions}
+            </select>
+            <p> {errors?.perWard?.message}</p>
+          </div>
+          <FormControlLabel
+            className="pl-3"
+            {...register("isActive")}
+            control={
+              <Checkbox
+                color="primary"
+                defaultChecked={clickedIdData?.isActive}
+              />
+            }
+            label="स्थायी ठेगाना नै अस्थायी ठेगाना भए"
+          />
         </div>
-
         <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
           (ख).अस्थायी ठेगाना
         </div>
-
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+        <div className="grid lg:grid-cols-4 shadow-2xl bg-gray-100 gap-5 px-5 pt-6 border border-black border-dashed border-t-0 ">
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">प्रदेश</label>
-            <select {...register("permaPradeshId")} className="peer">
-              <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {stateOptions}
+            <select {...register("tempState")} className="peer">
+              <option value={""}>--- प्रदेश छानुहोस ---</option>
+              {temporaryStateOptions}
             </select>
-            <p> {errors?.permaPradeshId?.message}</p>
+            <p> {errors?.tempState?.message}</p>
           </div>
-
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">जिल्ला</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {districtOptions}
+            <select {...register("tempDistrict")} className="peer">
+              <option value={""}>--- जिल्ला छानुहोस ---</option>
+              {temporaryDistrictOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.tempDistrict?.message}</p>
           </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">वडा नं</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- वडा नं छान्नुहोस् ---</option>
-              {wardOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">गा.पा./न.पा.</label>
-            <select {...register("permaDistrictId")} className="peer">
-              <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {palikaOptions}
+            <select {...register("tempPalika")} className="peer">
+              <option value={""}>--- गा.पा./न.पा. छानुहोस ---</option>
+              {temporaryPalikaOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.tempPalika?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label">वडा नं</label>
+            <select className="peer" {...register("tempWard")}>
+              <option value={""}>--- वडा नं छानुहोस ---</option>
+              {temporaryWardOptions}
+            </select>
+            <p> {errors?.tempWard?.message}</p>
           </div>
         </div>
 
@@ -438,38 +618,38 @@ export default function CreateGharBato({ clickedIdData }) {
         <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">प्रदेश</label>
-            <select {...register("permaPradeshId")} className="peer">
+            <select {...register("landState")} className="peer">
               <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {stateOptions}
+              {landStateOptions}
             </select>
-            <p> {errors?.permaPradeshId?.message}</p>
+            <p> {errors?.landState?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">जिल्ला</label>
-            <select {...register("permaDistrictId")} className="peer">
+            <select {...register("landDistrict")} className="peer">
               <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {districtOptions}
+              {landDistrictOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.landDistrict?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">वडा नं</label>
-            <select {...register("permaDistrictId")} className="peer">
+            <select {...register("landWard")} className="peer">
               <option value={""}>--- वडा नं छान्नुहोस् ---</option>
-              {wardOptions}
+              {landWardOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.landWard?.message}</p>
           </div>
 
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">गा.पा./न.पा.</label>
-            <select {...register("permaDistrictId")} className="peer">
+            <select {...register("landPalika")} className="peer">
               <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {palikaOptions}
+              {landPalikaOptions}
             </select>
-            <p> {errors?.permaDistrictId?.message}</p>
+            <p> {errors?.landPalika?.message}</p>
           </div>
         </div>
 

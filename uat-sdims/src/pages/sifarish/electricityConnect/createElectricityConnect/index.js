@@ -8,6 +8,13 @@ import { NepaliDatePicker } from "nepali-datepicker-reactjs";
 import BikramSambat from "bikram-sambat-js";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import AddButton from "../../../../components/reusableDesign/AddButton";
+import {
+  getAllState,
+  getDistrict,
+  getPalika,
+} from "../../../../services/apiServices/common/office/officeService";
+import { insertBidut } from "../../../../services/apiServices/sifarish/bidutJadan/bidutJadanService";
+import { toast } from "react-toastify";
 const aa = new BikramSambat(new Date()).toBS();
 
 export default function createElectricityConnect(clickedIdData) {
@@ -26,87 +33,191 @@ export default function createElectricityConnect(clickedIdData) {
     // },
   });
   const onSubmit = async (data) => {
-    // try {
-    //   const response = await insertAwabihawit(data);
-    //   if (response.status === true) {
-    //     toast.success(response.message, {
-    //       icon: "🚀",
-    //       autoClose: 1000,
-    //     });
-    //     router.push("/sifarish/awabihawit");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    data = {
+      ...data,
+      bidutPerviousConnectionDetailsInsert: {
+        ...data.bidutPerviousConnectionDetailsInsert,
+        previousConnectionDate_Np: previousConnectionDate_Np,
+        previousConnectionDate_En: previousConnectionDate_En,
+      },
+      bidutJadanListInsert: bidutJadanListInsert,
+    };
+    console.log(data, "bidutData");
+    try {
+      const response = await insertBidut(data);
+      if (response.status === true) {
+        toast.success(response.message, {
+          icon: "🚀",
+          autoClose: 1000,
+        });
+        router.push("/sifarish/electricityConnect");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
   //for dynamic form
-  const [prevElectricConnected, setPrevElectricConnected] = useState([
+  const [bidutJadanListInsert, setBidutJadanListInsert] = useState([
     {
-      kilowat: "",
-      jadanHune: "",
-      sankhya: "",
-      wat: "",
-      totalWat: "",
+      kiloWatt: "",
+      bidutEquipmentID: "",
+      totalNumber: "",
+      watt: "",
+      totalWatt: "",
     },
   ]);
   const handleAddPrevElectricConnected = () => {
-    setPrevElectricConnected([
-      ...prevElectricConnected,
+    setBidutJadanListInsert([
+      ...bidutJadanListInsert,
       {
-        kilowat: "",
-        jadanHune: "",
-        sankhya: "",
-        wat: "",
-        totalWat: "",
+        kiloWatt: "",
+        bidutEquipmentID: "",
+        totalNumber: "",
+        watt: "",
+        totalWatt: "",
       },
     ]);
   };
 
   const handleChangeKilowat = (e, index) => {
     const { name, value } = e.target;
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list[index][name] = value;
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
   const handleChangeJadanHune = (e, index) => {
     const { name, value } = e.target;
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list[index][name] = value;
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
   const handleChangeSankhya = (e, index) => {
     const { name, value } = e.target;
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list[index][name] = value;
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
   const handleChangeWat = (e, index) => {
     const { name, value } = e.target;
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list[index][name] = value;
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
   const handleChangeTotalWat = (e, index) => {
     const { name, value } = e.target;
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list[index][name] = value;
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
   const handleDeletePrevElectricConnection = (index) => {
-    const list = [...prevElectricConnected];
+    const list = [...bidutJadanListInsert];
     list.splice(index, 1);
-    setPrevElectricConnected(list);
+    setBidutJadanListInsert(list);
   };
 
   //for date picker
-  const [date, setDate] = useState(aa);
+  const [previousConnectionDate_Np, setPreviousConnectionDate_Np] =
+    useState(aa);
   useEffect(() => {
     if (clickedIdData) {
-      setDate(clickedIdData?.date || aa);
+      setPreviousConnectionDate_Np(
+        clickedIdData?.previousConnectionDate_Np || aa
+      );
+    }
+  }, [clickedIdData]);
+  const [previousConnectionDate_En, setPreviousConnectionDate_En] =
+    useState(aa);
+  useEffect(() => {
+    if (clickedIdData) {
+      setPreviousConnectionDate_En(
+        clickedIdData?.previousConnectionDate_En || aa
+      );
     }
   }, [clickedIdData]);
 
   const watchAllFields = watch();
+  //for state
+  const [stateData, setStateData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { status, data } = await getAllState();
+        if (status === true) {
+          setStateData(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  });
+
+  const stateOption = stateData.map((item) => {
+    return (
+      <option
+        key={item.stateId}
+        value={item.stateId}
+        selected={item.stateId === clickedIdData?.stateId}
+      >
+        {item.stateNameNep}
+      </option>
+    );
+  });
+
+  const watchFields = watch();
+  // console.log(watchFields, "watch");
+  //for district
+  const [districtData, setDistrictData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { status, data } = await getDistrict(watchFields?.stateId);
+        if (status === true) {
+          setDistrictData(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [watchFields?.stateId]);
+  const districtOption = districtData.map((item) => {
+    return (
+      <option
+        key={item.districtId}
+        value={item.districtId}
+        selected={item.districtId === clickedIdData?.districtId}
+      >
+        {item.districtNameNep}
+      </option>
+    );
+  });
+  //for palika
+  const [palikaData, setPalikaData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { status, data } = await getPalika();
+        if (status === true) {
+          setPalikaData(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+  const palikaOption = palikaData.map((item) => {
+    return (
+      <option
+        key={item.palikaId}
+        value={item.palikaId}
+        selected={item.palikaId === clickedIdData?.palikaId}
+      >
+        {item.palikaNameNep}
+      </option>
+    );
+  });
 
   return (
     <>
@@ -133,121 +244,120 @@ export default function createElectricityConnect(clickedIdData) {
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("fullName_English")}
               placeholder="."
             />
             <label className="label">नाम(Eng)</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.fullName_English?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("nagariktaPraPaNo")}
               placeholder="."
             />
             <label className="label">
               नागरिकता नं.
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.nagariktaPraPaNo?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
-              {" "}
               नागरिकता जारी जिल्ला
               <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("nagarkitaIssueDistrict")}
               className="peer requiredField"
             >
               <option value={""}>--- नागरिकता जिल्ला छान्नुहोस् ---</option>
-              {/* {nagritaDistrictOptions} */}
+              {districtOption}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.nagarkitaIssueDistrict?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("occupationOrBusiness")}
               placeholder="."
             />
             <label className="label">
               पेशा वा संस्थाको किसिम
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.occupationOrBusiness?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("fatherOrHusbandName_Np")}
               placeholder="."
             />
             <label className="label">
               बाबु/पतिको नाम
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.fatherOrHusbandName_Np?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("fatherOrHusbandName_En")}
               placeholder="."
             />
             <label className="label">बाबु/पतिको नाम(Eng)</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.fatherOrHusbandName_En?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("gFatherOrHusbandfatherName_Np")}
               placeholder="."
             />
             <label className="label">
               बाजे/ससुराको नाम
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.gFatherOrHusbandfatherName_Np?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("gFatherOrHusbandfatherName_En")}
               placeholder="."
             />
             <label className="label">बाजे/ससुराको नाम(Eng)</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.gFatherOrHusbandfatherName_En?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("ownerName_Np")}
               placeholder="."
             />
             <label className="label">
               घर धनीको नाम
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.ownerName_Np?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("ownerName_En")}
               placeholder="."
             />
             <label className="label">घर धनीको नाम(Eng)</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.ownerName_En?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
@@ -255,7 +365,7 @@ export default function createElectricityConnect(clickedIdData) {
               <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutUseTypeID")}
               className="peer requiredField"
             >
               <option value={""}>
@@ -263,7 +373,7 @@ export default function createElectricityConnect(clickedIdData) {
               </option>
               {/* {nagritaDistrictOptions} */}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.bidutUseTypeID?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
@@ -271,27 +381,24 @@ export default function createElectricityConnect(clickedIdData) {
               <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutLineTypeID")}
               className="peer requiredField"
             >
               <option value={""}>--- आवश्यकताको किसिम छान्नुहोस् ---</option>
               {/* {nagritaDistrictOptions} */}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.bidutLineTypeID?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
               विजुलीको किसिम
               <span className="requiredField">*</span>
             </label>
-            <select
-              {...register("nagriktaJariJillaId")}
-              className="peer requiredField"
-            >
+            <select {...register("bidutKismId")} className="peer requiredField">
               <option value={""}>--- विजुलीको किसिम छान्नुहोस् ---</option>
               {/* {nagritaDistrictOptions} */}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.bidutKismId?.message}</p>
           </div>
         </div>
         <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
@@ -302,33 +409,33 @@ export default function createElectricityConnect(clickedIdData) {
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.gharNumber")}
               placeholder="."
             />
             <label className="label">
               घर नं
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.gharNumber?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.tole")}
               placeholder="."
             />
             <label className="label">
               टोल
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.tole?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.ward")}
               placeholder="."
             />
             <label className="label">
@@ -344,13 +451,13 @@ export default function createElectricityConnect(clickedIdData) {
               <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutAddressDetailsInsert.stateId")}
               className="peer requiredField"
             >
               <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {/* {nagritaDistrictOptions} */}
+              {stateOption}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.stateId?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
@@ -358,80 +465,83 @@ export default function createElectricityConnect(clickedIdData) {
               जिल्ला <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutAddressDetailsInsert.districtId")}
               className="peer requiredField"
             >
               <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {/* {nagritaDistrictOptions} */}
+              {districtOption}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.districtId?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
-              {" "}
               गा.पा./न.पा. <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutAddressDetailsInsert.palikaId")}
               className="peer requiredField"
             >
               <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {/* {nagritaDistrictOptions} */}
+              {palikaOption}
             </select>
-            <p> {errors?.nagriktaJariJillaId?.message}</p>
+            <p> {errors?.palikaId?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.mobileNumber")}
               placeholder="."
             />
             <label className="label">
               मोबाइल नं
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.mobileNumber?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.phoneNumber")}
               placeholder="."
             />
             <label className="label">फोन नं</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.phoneNumber?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("bidutAddressDetailsInsert.eMail")}
               placeholder="."
             />
             <label className="label">इमेल</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.eMail?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register(
+                "bidutOrganizationDetailsInsert.electricitianName_Np"
+              )}
               placeholder="."
             />
             <label className="label">प्राविधिकको नाम</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.electricitianName_Np?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register(
+                "bidutOrganizationDetailsInsert.electricitianName_En"
+              )}
               placeholder="."
             />
             <label className="label">प्राविधिकको नाम (Eng)</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.electricitianName_En?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <label className="label text-blue-900 ">
@@ -440,7 +550,7 @@ export default function createElectricityConnect(clickedIdData) {
               <span className="requiredField">*</span>
             </label>
             <select
-              {...register("nagriktaJariJillaId")}
+              {...register("bidutOrganizationDetailsInsert.gharTypeId")}
               className="peer requiredField"
             >
               <option value={""}>--- घरको बनोट छान्नुहोस् ---</option>
@@ -452,39 +562,41 @@ export default function createElectricityConnect(clickedIdData) {
             <input
               type="string"
               className="peer"
-              {...register("fullName_Nepali")}
+              {...register("bidutOrganizationDetailsInsert.organizationStorey")}
               placeholder="."
             />
             <label className="label">तल्ला</label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.organizationStorey?.message}</p>
           </div>
           <div className="relative z-0 w-full mb-6 group">
             <input
               type="string"
               className="peer requiredField"
-              {...register("fullName_Nepali")}
+              {...register("bidutOrganizationDetailsInsert.totalRooms")}
               placeholder="."
             />
             <label className="label">
               जम्मा कोठा संख्या
               <span className="requiredField">*</span>
             </label>
-            <p> {errors?.fullName_Nepali?.message}</p>
+            <p> {errors?.totalRooms?.message}</p>
           </div>
         </div>
         <div className=" pt-4 border border-black border-dashed border-t-0 ">
           <FormControlLabel
             className="pl-4"
-            {...register("isActive")}
+            {...register("bidutPerviousConnectionDetailsInsert")}
             control={
               <Checkbox
                 color="primary"
-                defaultChecked={clickedIdData?.isActive}
+                defaultChecked={
+                  clickedIdData?.bidutPerviousConnectionDetailsInsert
+                }
               />
             }
             label="उल्लेखित ठाउँमा पहिलेदेखिनै बत्ति भए सो को विवरण"
           />
-          {watchAllFields?.isActive && (
+          {watchAllFields?.bidutPerviousConnectionDetailsInsert && (
             <>
               <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
                 ३. विजुली अघिल्लो जडान गर्ने संस्थाको पूरा ठेगाना
@@ -494,7 +606,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.customerNumber"
+                    )}
                     placeholder="."
                   />
                   <label className="label">ग्राहक नं</label>
@@ -503,7 +617,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.previousCustomerName_Np"
+                    )}
                     placeholder="."
                   />
                   <label className="label">पहिले ग्राहको नाम</label>
@@ -512,7 +628,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.previousCustomerName_En"
+                    )}
                     placeholder="."
                   />
                   <label className="label">पहिले ग्राहको नाम(Eng)</label>
@@ -525,9 +643,23 @@ export default function createElectricityConnect(clickedIdData) {
                     पहिले जडान भएको मिति(BS)
                   </label>
                   <NepaliDatePicker
-                    value={date}
+                    value={previousConnectionDate_Np}
                     className="peer"
-                    onChange={(e) => setDate(e)}
+                    onChange={(e) => setPreviousConnectionDate_Np(e)}
+                    options={{ calenderLocale: "ne", valueLocale: "en" }}
+                  />
+                </div>
+                <div className="relative  w-full mb-6 group">
+                  <label
+                    htmlFor=""
+                    className=" absolute text-[10px] text-blue-900 -top-[15%]"
+                  >
+                    पहिले जडान भएको मिति(BS)
+                  </label>
+                  <NepaliDatePicker
+                    value={previousConnectionDate_En}
+                    className="peer"
+                    onChange={(e) => setPreviousConnectionDate_En(e)}
                     options={{ calenderLocale: "ne", valueLocale: "en" }}
                   />
                 </div>
@@ -535,7 +667,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.address_Np"
+                    )}
                     placeholder="."
                   />
                   <label className="label">पहिले जडान ठेगाना</label>
@@ -544,7 +678,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.address_En"
+                    )}
                     placeholder="."
                   />
                   <label className="label">पहिले जडान ठेगाना(Eng)</label>
@@ -553,7 +689,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.pC_FatherHusbandName_Np"
+                    )}
                     placeholder="."
                   />
                   <label className="label">बाबु/पतिको नाम</label>
@@ -562,7 +700,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.pC_FatherHusbandName_En"
+                    )}
                     placeholder="."
                   />
                   <label className="label">बाबु/पतिको नाम(Eng)</label>
@@ -571,7 +711,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.pC_OwnerName_Np"
+                    )}
                     placeholder="."
                   />
                   <label className="label">घरबेटीको नाम</label>
@@ -580,7 +722,9 @@ export default function createElectricityConnect(clickedIdData) {
                   <input
                     type="string"
                     className="peer  "
-                    {...register("registeredNikayeName_Np")}
+                    {...register(
+                      "bidutPerviousConnectionDetailsInsert.pC_OwnerName_En"
+                    )}
                     placeholder="."
                   />
                   <label className="label">घरबेटीको नाम(Eng)</label>
@@ -612,54 +756,65 @@ export default function createElectricityConnect(clickedIdData) {
           <div className=" ">जम्मा वाट</div>
           <div className=" ">कार्य </div>
         </div>
-        {prevElectricConnected?.map((item, index) => {
+        {bidutJadanListInsert?.map((item, index) => {
           return (
             <div
               key={index}
-              className="grid lg:grid-cols-5 gap-1 py-4 border border-black border-dashed shadow-2xl bg-gray-100 px-1"
+              className="grid lg:grid-cols-7 gap-1 py-4 border border-black border-dashed shadow-2xl bg-gray-100 px-1"
             >
               <input
                 type="string"
                 className="border-2 border-gray-300  rounded-lg w-32 "
-                name="kilowat"
-                value={item.kilowat}
+                name="kiloWatt"
+                value={item.kiloWatt}
                 onChange={(e) => handleChangeKilowat(e, index)}
                 placeholder="."
               />
-              <input
+              <select
+                className="border border-gray-300 rounded-lg w-24"
+                type="string"
+                name="bidutEquipmentID"
+                value={item.bidutEquipmentID}
+                onChange={(e) => handleChangeJadanHune(e, index)}
+              >
+                <option value={""}>--सामान छानुहोस--</option>
+                {/* {relationOption} */}
+              </select>
+              <p>{errors?.relationId?.message}</p>
+              {/* <input
                 type="string"
                 className="border-2 border-gray-300  rounded-lg w-32 "
                 name="jadanHune"
                 value={item.jadanHune}
                 onChange={(e) => handleChangeJadanHune(e, index)}
                 placeholder="."
-              />
+              /> */}
               <input
                 type="string"
                 className="border-2 border-gray-300  rounded-lg w-32 "
-                name="sankhya"
-                value={item.sankhya}
+                name="totalNumber"
+                value={item.totalNumber}
                 onChange={(e) => handleChangeSankhya(e, index)}
                 placeholder="."
               />
               <input
                 type="string"
                 className="border-2 border-gray-300  rounded-lg w-32 "
-                name="wat"
-                value={item.wat}
+                name="watt"
+                value={item.watt}
                 onChange={(e) => handleChangeWat(e, index)}
                 placeholder="."
               />
               <input
                 type="string"
                 className="border-2 border-gray-300 mr-8 rounded-lg w-32 "
-                name="totalWat"
-                value={item.totalWat}
+                name="totalWatt"
+                value={item.totalWatt}
                 onChange={(e) => handleChangeTotalWat(e, index)}
                 placeholder="."
               />
               <div>
-                {prevElectricConnected.length > 1 && (
+                {bidutJadanListInsert.length > 1 && (
                   <div className=" justify-end ">
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded py-2 "

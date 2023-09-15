@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import SeoOptimization from "../../../components/reusableDesign/SeoOptimzation";
+import ListViewPageDesign from "../../../components/reusableDesign/ListViewPageDesign";
+import ListHeader from "../../../components/reusableDesign/ListHeader";
+import ListButton from "../../../components/reusableDesign/ListButton";
+import LoadingSpinner from "../../../components/reusableDesign/Loading";
 import { useRouter } from "next/router";
-import MuiTable from "../../../components/reusableDesign/muiTableDesign/MuiTable";
 import {
   Paper,
   Table,
@@ -13,49 +16,44 @@ import {
 } from "@mui/material";
 import { englishToNepali } from "../../../utils/utility";
 import { FaEdit, FaEye, FaPrint, FaTrashAlt, FaUpload } from "react-icons/fa";
-import ListViewPageDesign from "../../../components/reusableDesign/ListViewPageDesign";
-import ListHeader from "../../../components/reusableDesign/ListHeader";
-import ListButton from "../../../components/reusableDesign/ListButton";
-import LoadingSpinner from "../../../components/reusableDesign/Loading";
-import { getSadakKhanne } from "../../../services/apiServices/sifarish/sadakKhanee/sadakKhanneService";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import SifarishModal from "../../../components/reusableDesign/SifarishModal";
-import { toast } from "react-toastify";
 
-export default function Index() {
+export default function index() {
   const router = useRouter();
   const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchedData = () => {
-      getSadakKhanne().then(({ status, data, message }) => {
-        try {
-          if (status) {
-            setApiData(data);
-            setLoading(false);
-          } else {
-            setLoading(false);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      });
+      // getAayaShrot().then(({ status, data, message }) => {
+      //   console.log(data, "data");
+      //   try {
+      //     if (status) {
+      //       setApiData(data);
+      //       setLoading(false);
+      //     } else {
+      //       setLoading(false);
+      //     }
+      //   } catch (error) {
+      //     console.log(error);
+      //   }
+      // });
     };
     fetchedData();
   }, [setApiData]);
 
   const handleEdit = (id) => {
-    router.push(`/sifarish/sadakKhanne/createSadakKhanne/${id}`);
+    router.push(`/sifarish/gharJaggaNamsari/createGharJaggaNamsari/${id}`);
   };
   const handleDetail = (id) => {
-    router.push(`/sifarish/sadakKhanne/details/${id}`);
+    router.push(`/sifarish/gharJaggaNamsari/details/${id}`);
   };
   const handleUploadDocs = (id) => {
-    router.push(`/sifarish/sadakKhanne/uploadDocs/${id}`);
+    router.push(`/sifarish/gharJaggaNamsari/uploadDocs/${id}`);
   };
   const handlePrint = (id) => {
-    router.push(`/sifarish/sadakKhanne/printSadakKhanne/${id}`);
+    router.push(`/sifarish/gharJaggaNamsari/printGharJaggaNamsari/${id}`);
   };
 
   //for verification
@@ -78,18 +76,16 @@ export default function Index() {
     setShow(!show);
     setUnVerifyId(id);
   };
-
   const locale = (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-aria-label="customized table">
         <TableHead>
           <TableRow className="bg-[#3e8dc1fd]">
             <TableCell sx={{ fontSize: "16px" }}>सि.नं.</TableCell>
-            <TableCell sx={{ fontSize: "16px" }}>नाम</TableCell>
-            <TableCell sx={{ fontSize: "15px" }}>नागरिकता नं</TableCell>
-            <TableCell sx={{ fontSize: "15px" }}>
-              सडक खन्ने पुरा ठेगाना
-            </TableCell>
+            <TableCell sx={{ fontSize: "15px" }}>नाम(Nep)</TableCell>
+            <TableCell sx={{ fontSize: "16px" }}>नाम(Eng)</TableCell>
+            <TableCell sx={{ fontSize: "16px" }}>नागरिकता नं.</TableCell>
+            <TableCell sx={{ fontSize: "16px" }}>कर तिरेको रसिद नं.</TableCell>
             <TableCell sx={{ fontSize: "16px" }}>ट्र्याकिङ नं.</TableCell>
             <TableCell sx={{ fontSize: "16px" }}>स्थिति</TableCell>
             <TableCell
@@ -107,12 +103,11 @@ export default function Index() {
           {apiData.map((row, index) => (
             <TableRow key={index} className="hover:bg-[#a0cae7fd]">
               <TableCell>{englishToNepali(index + 1)}</TableCell>
-              <TableCell>{row.name_Nep}</TableCell>
-              <TableCell>{row.citizenNo}</TableCell>
-              <TableCell>{row.sadakKhanneAddress}</TableCell>
+              <TableCell>{row.nivedakNaamThar}</TableCell>
+              <TableCell>{row.grossIncome}</TableCell>
               <TableCell>{row.trackingNo}</TableCell>
               <TableCell>{row.verify}</TableCell>
-              <TableCell className="pl-7 cursor-pointer">
+              <TableCell className="cursor-pointer">
                 <div className=" flex flex-wrap gap-1">
                   <div
                     className=" cursor-pointer hover:text-blue-900 "
@@ -193,23 +188,13 @@ export default function Index() {
     </TableContainer>
   );
   return (
-    <React.Fragment>
-      <SeoOptimization title={"Sadak Khanne"} />
+    <>
+      <SeoOptimization title={"gharJaggaNamsari"} />
       <ListViewPageDesign>
-        <ListHeader title="सडक खन्ने सिफारिस सूची" />
-        <ListButton url={`/sifarish/sadakKhanne/createSadakKhanne`} />
+        <ListHeader title={"घरजग्गा नामसारी फारम"} />
+        <ListButton url={`/sifarish/gharJaggaNamsari/createGharJaggaNamsari`} />
         {loading ? <LoadingSpinner /> : locale}
       </ListViewPageDesign>
-    </React.Fragment>
+    </>
   );
 }
-
-// const tableHeadData = [
-//   { id: "id", name: "सि.नं." },
-//   { id: "fullName", name: "पूरा नाम थर" },
-//   { id: "nagritaNo", name: "नगरीता नं." },
-//   { id: "rashid", name: "कर तिरेको रसिद नं." },
-//   { id: "trackingNo", name: "ट्र्याकिङ नं." },
-//   { id: "status", name: "स्थिति" },
-//   { id: "action", name: "कार्य" },
-// ];

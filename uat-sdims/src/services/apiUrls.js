@@ -1763,6 +1763,120 @@ const apiUrls = {
   },
 
   sifarish: {
+    gharBatoPramanit: {
+      insertGharBatoPar: {
+        method: "POST",
+        url: "/GharBatoPramanit/InsertGharBatoPramanit",
+      },
+      getGharBatoPar: {
+        method: "GET",
+        url: "/GharBatoPramanit/GetAllGharBatoPramanit",
+      },
+      gharBatoUpdate: {
+        method: "GET",
+        url: "/GharBatoPramanit/GetGharBatoPramanitForUpdate",
+      },
+      insertDocsForGHarBato: {
+        method: "POST",
+        url: "/GharBatoPramanit/InsertGharBatoPramanitFiles",
+      },
+      getDocsForGHarBato: {
+        method: "GET",
+        url: "/GharBatoPramanit/GetGharBatoPramanitFileById",
+      },
+      printGHarBato: {
+        method: "GET",
+        url: "/GharBatoPramanit/Print",
+      },
+    },
+    farakFarakJanmaMiti: {
+      insertFarakMiti: {
+        method: "POST",
+        url: "/FarakFarakJanmaMiti/InsertFarakFarakJanmaMiti",
+      },
+      getFarakMiti: {
+        method: "GET",
+        url: "/FarakFarakJanmaMiti/GetAllFarakFarakJanmaMiti",
+      },
+      updateFarakMitiData: {
+        method: "GET",
+        url: "/FarakFarakJanmaMiti/GetFarakFarakJanmaMitiForUpdate",
+      },
+      uploadDocsFarakJanmMiti: {
+        method: "POST",
+        url: "/FarakFarakJanmaMiti/InsertFarakFarakJanmaMitiFiles",
+      },
+      getDocsFarakJanmMiti: {
+        method: "GET",
+        url: "/FarakFarakJanmaMiti/GetFarakFarakJanmaMitiFileById",
+      },
+      printFarakJanmaMiti: {
+        method: "GET",
+        url: "/FarakFarakJanmaMiti/Print",
+      },
+    },
+    bidut: {
+      insertBidut: {
+        method: "POST",
+        url: "/Bidut/InsertBidut",
+      },
+      getBidut: {
+        method: "GET",
+        url: "/Bidut/GetAllBidut",
+      },
+    },
+    twoNameOnePerson: {
+      insertTwoNamePerson: {
+        method: "POST",
+        url: "/DuiNaamEkByakti/InsertDuiNaamEkByakti",
+      },
+      getTwoNamePerson: {
+        method: "GET",
+        url: "/DuiNaamEkByakti/GetAllDuiNaamEkByakti",
+      },
+      updateTwoNameOnePerson: {
+        method: "GET",
+        url: "/DuiNaamEkByakti/GetDuiNaamEkByaktiForUpdate",
+      },
+      insertDocsTwoNameOnePerson: {
+        method: "POST",
+        url: "/DuiNaamEkByakti/InsertDuiNaamEkByaktiFiles",
+      },
+      getDocsTwoNameOnePerson: {
+        method: "GET",
+        url: "/DuiNaamEkByakti/GetDuiNaamEkByaktiFileById",
+      },
+      printTwoNameOnePerson: {
+        method: "GET",
+        url: "/DuiNaamEkByakti/Print",
+      },
+    },
+    sadakKhanee: {
+      insertSadakKhanne: {
+        method: "POST",
+        url: "/SadakKhanne/InsertSadakKhanne",
+      },
+      getSadakKhanne: {
+        method: "GET",
+        url: "/SadakKhanne/GetAllSadakKhanne",
+      },
+      updateSadakKhanne: {
+        method: "GET",
+        url: "/SadakKhanne/GetSadakKhanneForUpdate",
+      },
+      sadakKhaneeFileUpload: {
+        method: "POST",
+        url: "/SadakKhanne/InsertSadakKhanneFiles",
+      },
+      getsadakKhaneeFileUpload: {
+        method: "GET",
+        url: "/SadakKhanne/GetSadakKhanneFileById",
+      },
+      printSadakKhanne: {
+        method: "GET",
+        url: "/SadakKhanne/Print",
+      },
+    },
     sthaiAsthaiBasobas: {
       insertSthaiAsthaiBasobas: {
         method: "POST",

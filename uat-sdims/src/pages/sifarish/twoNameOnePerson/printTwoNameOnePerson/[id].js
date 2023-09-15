@@ -3,17 +3,17 @@ import React, { useEffect, useRef, useState } from "react";
 import PlanningHeaderReport from "../../../../components/reusableDesign/PlanningHeaderReport";
 import { englishToNepali } from "../../../../utils/utility";
 import BikramSambat from "bikram-sambat-js";
-import { FaPrint } from "react-icons/fa";
 import { useRouter } from "next/router";
-import { printsAdibasi } from "../../../../services/apiServices/sifarish/aadiwasiJanajaati/aadiwasiJanjatiService";
 import { useReactToPrint } from "react-to-print";
+import { FaPrint } from "react-icons/fa";
+import { twoNameOnePersonPrintData } from "../../../../services/apiServices/sifarish/twoNameOnePerson/twoNameOnePersonService";
 
-export default function PrintAdivasi() {
+export default function TwoNameOnePersonPrint() {
   const aa = new BikramSambat(new Date()).toBS();
   const [loading, setLoading] = useState(true);
   const [apiData, setApiData] = useState([]);
-  const componentRef = useRef();
   const { query } = useRouter();
+  const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
   });
@@ -21,7 +21,7 @@ export default function PrintAdivasi() {
   useEffect(() => {
     if (query?.id) {
       let receiptPrintApi = () => {
-        printsAdibasi(query?.id).then((response) => {
+        twoNameOnePersonPrintData(query?.id).then((response) => {
           try {
             response.status === true;
             {
@@ -54,36 +54,62 @@ export default function PrintAdivasi() {
           </div>
 
           <PlanningHeaderReport />
+          {/* <div className="text-lg font-bold pt-20 text-red-600">
+            <p className=" indent-2">कीर्तिपुर, काठमाडौं ।</p>
+            <p>बागमती प्रदेश, नेपाल ।</p>
+          </div> */}
           <div></div>
         </div>
         <div className="flex justify-between pb-10  ">
           <div className=" leading-8">
             <span className=" block">
-              <text className=" inline-block font-bold">पत्र संख्या :</text>
+              <text className=" inline-block font-bold text-red-500">
+                पत्र संख्या :
+              </text>
               .....
             </span>
             <span className=" block">
-              <text className=" inline-block font-bold">चलानी नं :</text>
+              <text className=" inline-block font-bold text-red-500">
+                चलानी नं :
+              </text>
               .....
             </span>
           </div>
           <div className=" pt-10">
-            <text className=" text-xl font-bold">
-              विषय : आदिवासीको सिफारिस।
+            <text className=" text-xl font-bold block pt-20 underline">
+              विषय : दुई नाम एक व्यक्ति प्रमाणित।
             </text>
           </div>
-          <div className="text-lg font-bold">मिति : {englishToNepali(aa)}</div>
+          <div className="text-lg font-bold text-red-500">
+            मिति : {englishToNepali(aa)}
+          </div>
         </div>
         <div>
-          <text className=" block">श्री जिल्ला प्रशासन कार्यालय,</text>
-          <text className=" block">कीर्तिपुर, काठमाडौं ।</text>
+          <text className=" block">श्री जो जससँग सम्बन्ध छ।</text>
           <text className=" block pt-4 indent-16 text-justify">
-            उपरोक्त सम्बन्धमा जिल्ला काठमाडौं कीर्तिपुर नगरपालिका वडा नं. १
-            बस्ने dg को नाति dg को छोरा gdgdf ले म नेपालको सूचिकृत आदिवासी भित्र
-            पर्ने भएको हुँदा उक्त ब्यहोरा प्रमाणित गराउनका लागि सिफारिस गरिपाउँ
-            भनि यस कार्यालयमा निवेदन दिनुभएको हुँदा सोही बमोजिम उक्त ब्यहोरा
-            निजको फोटो टाँस गरि प्रमाणित गरिदिनुहुन सिफारिस साथ अनुरोध छ ।
+            कीर्तिपुर नगरपालिका वडा नं. १ निवासी श्री / सुश्री / श्रीमती कमल को
+            तल उल्लेखित विवरण अनुसारको कागजातमा नाम थर फरक हुन गएकोले सो फरक हुन
+            गएको नाम थर भएको व्यक्ति एकै भएको प्रमाणित गरि पाउँ भनि निजले यस
+            कार्यालयमा पेश गर्नुभएको निवेदन र सोसाथ संलग्न कागजातका आधारमा निजले
+            पेश गरेको व्यहोरा मनासिव भएको खुल्न आएकोले सो फरक नाम थर भएको
+            व्यक्ति एकै भएको व्यहोरा सिफारिस गरिन्छ।
           </text>
+        </div>
+        <div className=" flex justify-center gap-8 mt-8">
+          <p className=" font-bold">
+            <span className="inline-block text-right">
+              हुनु पर्ने नाम, थर :
+            </span>
+            {apiData?.actualName_Nepali}
+          </p>
+          <p className=" font-bold">
+            <span className="inline-block text-right">फरक नाम, थर :</span>
+            {apiData?.differentName_Nepali}
+          </p>
+          <p className=" font-bold">
+            <span className="inline-block text-right">भएको नाम, थर :</span>
+            {apiData?.actualName_Nepali}
+          </p>
         </div>
         <div className=" text-right pt-10">
           <text className=" block">.......................</text>

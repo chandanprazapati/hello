@@ -469,7 +469,7 @@ export default function CreateAayaShrot({ clickedIdData }) {
               htmlFor=""
               className=" absolute text-[10px] text-blue-900 -top-[15%]"
             >
-              darta मिति
+              दर्ता मिति
             </label>
 
             <NepaliDatePicker

@@ -117,6 +117,10 @@ const sifarish = [
         list: "आय श्रोत प्रमाणित",
         link: "/sifarish/aayaShrot",
       },
+      {
+        list: "विवाह दर्ता प्रमाणित",
+        link: "/sifarish/vivahDarta",
+      },
       // {
       //   list: "वृद्ध भत्ता निवेदन",
       //   link: "/sifarish/vrudhaBhatta",
@@ -125,10 +129,10 @@ const sifarish = [
       //   list: "विपन्नता/सम्पन्नता ",
       //   link: "/sifarish/vipannata",
       // },
-      // {
-      //   list: "घर-जग्गा नामसारी ",
-      //   link: "/sifarish/gharJaggaNamsari",
-      // },
+      {
+        list: "घर-जग्गा नामसारी ",
+        link: "/sifarish/gharJaggaNamsari",
+      },
       // {
       //   list: "धारा जडान ",
       //   link: "/sifarish/dharaJadan",

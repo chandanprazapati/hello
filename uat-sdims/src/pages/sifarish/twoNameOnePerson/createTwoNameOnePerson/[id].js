@@ -4,8 +4,10 @@ import dynamic from "next/dynamic";
 import SeoOptimization from "../../../../components/reusableDesign/SeoOptimzation";
 import LoadingSpinner from "../../../../components/reusableDesign/Loading";
 import { appointment } from "../../../../services/apiServices/common/appointment/appointmentService";
+import { toast } from "react-toastify";
+import { twoNameOnePersonDetailsUpdate } from "../../../../services/apiServices/sifarish/twoNameOnePerson/twoNameOnePersonService";
 
-const CreateTwoNameOnePerson = dynamic(() => import("./"), {
+const CreateTwoNameOnePerson = dynamic(() => import("./index"), {
   ssr: false,
 });
 
@@ -17,8 +19,11 @@ export default function CreateTwoNameOnePersonId() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!query.id) return;
       try {
-        const { status, data, message } = await appointment();
+        const { status, data, message } = await twoNameOnePersonDetailsUpdate(
+          query.id
+        );
         if (status === true) {
           setApiData(data);
           setLoading(false);
@@ -34,12 +39,12 @@ export default function CreateTwoNameOnePersonId() {
     };
 
     fetchData();
-  }, []);
+  }, [query.id]);
 
-  const filteredData = useMemo(
-    () => apiData.find((item) => item.id === parseInt(query.id)),
-    [apiData, query.id]
-  );
+  // const filteredData = useMemo(
+  //   () => apiData.find((item) => item.id === parseInt(query.id)),
+  //   [apiData, query.id]
+  // );
   return (
     <React.Fragment>
       <SeoOptimization title={"Two Name One Person  "} />
@@ -49,7 +54,7 @@ export default function CreateTwoNameOnePersonId() {
       ) : error ? (
         <p>{error}</p>
       ) : (
-        <CreateTwoNameOnePerson clickedIdData={filteredData} />
+        <CreateTwoNameOnePerson clickedIdData={apiData} />
       )}
     </React.Fragment>
   );

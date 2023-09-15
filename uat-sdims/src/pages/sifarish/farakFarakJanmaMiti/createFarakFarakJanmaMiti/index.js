@@ -16,67 +16,126 @@ import BikramSambat from "bikram-sambat-js";
 const BS = require("bikram-sambat-js");
 import "nepali-datepicker-reactjs/dist/index.css";
 import SeoOptimization from "../../../../components/reusableDesign/SeoOptimzation";
+import { Checkbox, FormControlLabel } from "@mui/material";
+import { date } from "yup";
+import { insertFaraJanmakMiti } from "../../../../services/apiServices/sifarish/farakFarakJanmaMiti/farakFarakJanmaMitiService";
 const aa = new BikramSambat(new Date()).toBS();
 
-export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
+export default function CreateFarakFarakJanmaMiti(clickedIdData) {
+  useEffect(() => {
+    if (clickedIdData) {
+      setFarakJanmaMitiCorrectionInsertViewModelList(
+        clickedIdData?.clickedIdData
+          ?.farakJanmaMitiCorrectionInsertViewModelList || [
+          {
+            janmaDateToBe: janmaDateToBe,
+            differentJanmaDate: differentJanmaDate,
+            namilekoKagjat: "",
+          },
+        ]
+      );
+    }
+  }, [clickedIdData]);
   const router = useRouter();
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     // resolver: aadivasiValidationResolver,
-    // defaultValues: {
-    //   id: clickedIdData?.id,
-    //   nameThar: clickedIdData?.nameThar,
-    //   fullName: clickedIdData?.fullName,
-    //   genderId: clickedIdData?.genderId,
-    //   permaPradeshId: clickedIdData?.permaPradeshId,
-    //   prmajillaId: clickedIdData?.prmajillaId,
-    //   permaPalikaId: clickedIdData?.permaPalikaId,
-    //   permaWardNo: clickedIdData?.permaWardNo,
-    //   nagritaPraPaNo: clickedIdData?.nagritaPraPaNo,
-    //   nagariktaIssueDistrictId: clickedIdData?.nagariktaIssueDistrictId,
-    //   grandfatherNaamThar: clickedIdData?.grandfatherNaamThar,
-    //   grandfatherFullName: clickedIdData?.grandfatherFullName,
-    //   fatherNaamThar: clickedIdData?.fatherNaamThar,
-    //   fatherFullName: clickedIdData?.fatherFullName,
-    //   jaati: clickedIdData?.jaati,
-    //   aadibasiTypeId: clickedIdData?.aadibasiTypeId,
-    //   govtSuchikrit: clickedIdData?.govtSuchikrit,
-    // },
+    defaultValues: {
+      id: clickedIdData?.clickedIdData?.id,
+      name_Nep: clickedIdData?.clickedIdData?.name_Nep,
+      name_Eng: clickedIdData?.clickedIdData?.name_Eng,
+      fatherName_Eng: clickedIdData?.clickedIdData?.fatherName_Eng,
+      fatherName_Nep: clickedIdData?.clickedIdData?.fatherName_Nep,
+      motherName_Eng: clickedIdData?.clickedIdData?.motherName_Eng,
+      motherName_Nep: clickedIdData?.clickedIdData?.motherName_Nep,
+      citizenNo_Father: clickedIdData?.clickedIdData?.citizenNo_Father,
+      citizenNo_Mother: clickedIdData?.clickedIdData?.citizenNo_Mother,
+    },
   });
 
   const onSubmit = async (data) => {
     data = {
       ...data,
-      nagariktIssueDate: nagariktIssueDate,
+      farakJanmaMitiCorrectionInsertViewModelList:
+        farakJanmaMitiCorrectionInsertViewModelList,
     };
-
-    console.log(data, "data");
-    // try {
-    //   const response = await insertAwabihawit(data);
-    //   if (response.status === true) {
-    //     toast.success(response.message, {
-    //       icon: "🚀",
-    //       autoClose: 1000,
-    //     });
-    //     router.push("/sifarish/adivasi");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    try {
+      const response = await insertFaraJanmakMiti(data);
+      if (response.status === true) {
+        toast.success(response.message, {
+          icon: "🚀",
+          autoClose: 1000,
+        });
+        router.push("/sifarish/farakFarakJanmaMiti");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  //watch fields
+  const watchFields = watch();
+  useEffect(() => {
+    if (watchFields.isActive) {
+      setValue("sabState", watchFields.state);
+      setValue("sabDistrict", watchFields.district);
+      setValue("sabPalika", watchFields.palika);
+      setValue("sabWard", watchFields.ward);
+    } else {
+      setValue("sabState", "");
+      setValue("sabDistrict", "");
+      setValue("sabPalika", "");
+      setValue("sabWard", "");
+    }
+  }, [
+    setValue,
+    watchFields.isActive,
+    watchFields.state,
+    watchFields.district,
+    watchFields.palika,
+    watchFields.ward,
+  ]);
+
   // for state
-  const [stateData, setStateData] = useState([]);
+  const [parmanentStateData, setParmanentStateData] = useState([]);
+  const [temporaryStateData, setTemporaryStateData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getAllState();
         if (response.status === true) {
-          setStateData(response.data);
+          setParmanentStateData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const parmanentStateOptions = parmanentStateData.map((item) => {
+    return (
+      <option
+        value={item.stateId}
+        key={item.stateId}
+        selected={item.stateId === clickedIdData?.clickedIdData?.state}
+      >
+        {item.stateNameNep}
+      </option>
+    );
+  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllState();
+        if (response.status === true) {
+          setTemporaryStateData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -86,31 +145,27 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
     fetchData();
   }, []);
 
-  // permanent address
-  const stateValue = watch("stateId");
-  const districtValue = watch("districtId");
-
-  const stateOptions = stateData.map((item) => {
+  const temporaryStateOptions = temporaryStateData.map((item) => {
     return (
       <option
         value={item.stateId}
         key={item.stateId}
-        selected={item.stateId === clickedIdData?.stateId}
+        selected={item.stateId === clickedIdData?.clickedIdData?.sabState}
       >
         {item.stateNameNep}
       </option>
     );
   });
+  // for district
+  const [parmanentdistrictData, setParmanentDistrictData] = useState([]);
+  const [temporarydistrictData, setTemporaryDistrictData] = useState([]);
 
-  // district
-  const [districtData, setDistrictData] = useState([]);
-  //   const []
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getDistrict(stateValue);
+        const response = await getDistrict(watchFields?.state);
         if (response.status === true) {
-          setDistrictData(response.data);
+          setParmanentDistrictData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -118,28 +173,25 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
     };
 
     fetchData();
-  }, [stateValue]);
-
-  const districtOptions = districtData.map((item) => {
+  }, [watchFields?.state]);
+  const parmanentDistrictOptions = parmanentdistrictData.map((item) => {
     return (
       <option
         value={item.districtId}
         key={item.districtId}
-        selected={item.districtId === clickedIdData?.districtId}
+        selected={item.districtId === clickedIdData?.clickedIdData?.district}
       >
         {item.districtNameNep}
       </option>
     );
   });
 
-  // palika
-  const [palikaData, setPalikaData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getPalika(districtValue);
+        const response = await getDistrict(watchFields?.sabState);
         if (response.status === true) {
-          setPalikaData(response.data);
+          setTemporaryDistrictData(response.data);
         }
       } catch (error) {
         console.error(error);
@@ -147,101 +199,130 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
     };
 
     fetchData();
-  }, [districtValue]);
+  }, [watchFields?.sabState]);
 
-  const palikaOptions = palikaData.map((item) => {
+  const temporaryDistrictOptions = temporarydistrictData.map((item) => {
+    return (
+      <option
+        value={item.districtId}
+        key={item.districtId}
+        selected={item.districtId === clickedIdData?.clickedIdData?.sabDistrict}
+      >
+        {item.districtNameNep}
+      </option>
+    );
+  });
+
+  // for palika
+  const [parmanentPalikaData, setParmanentPalikaData] = useState([]);
+  const [temporaryPalikaData, setTemporaryPalikaData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getPalika(watchFields?.district);
+        if (response.status === true) {
+          setParmanentPalikaData(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [watchFields?.district]);
+  const parmanentPalikaOptions = parmanentPalikaData.map((item) => {
     return (
       <option
         value={item.palikaId}
         key={item.palikaId}
-        selected={item.palikaId === clickedIdData?.palikaId}
+        selected={item.palikaId === clickedIdData?.clickedIdData?.palika}
       >
         {item.palikaNameNep}
       </option>
     );
   });
 
-  // for ward
-  const [wardData, setWardData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { status, data } = await ward();
-        if (status) {
-          setWardData(data);
+        const response = await getPalika(watchFields?.sabDistrict);
+        if (response.status === true) {
+          setTemporaryPalikaData(response.data);
         }
       } catch (error) {
         console.error(error);
       }
     };
+
     fetchData();
-  }, []);
-  const wardOptions = wardData.map((item) => {
+  }, [watchFields?.sabDistrict]);
+
+  const temporaryPalikaOptions = temporaryPalikaData.map((item) => {
+    return (
+      <option
+        value={item.palikaId}
+        key={item.palikaId}
+        selected={item.palikaId === clickedIdData?.clickedIdData?.sabPalika}
+      >
+        {item.palikaNameNep}
+      </option>
+    );
+  });
+
+  //for ward
+  const [parmanentWardData, setParmanentWardData] = useState([]);
+  const [temporaryWardData, setTemporaryWardData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await ward(watchFields?.palika);
+        if (response.status === true) {
+          setParmanentWardData(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [watchFields?.palika]);
+  const parmanentWardOptions = parmanentWardData.map((item) => {
     return (
       <option
         value={item.id}
         key={item.id}
-        selected={item.id === clickedIdData?.wardId}
+        selected={item?.id === clickedIdData?.clickedIdData?.ward}
       >
         {item.name}
       </option>
     );
   });
 
-  //   for gender
-  const [genderData, setGenderData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { status, data } = await gender();
-        if (status) {
-          setGenderData(data);
+        const response = await ward(watchFields?.sabPalika);
+        if (response.status === true) {
+          setTemporaryWardData(response.data);
         }
       } catch (error) {
-        console.error(error);
+        console.log(error);
       }
     };
     fetchData();
-  }, []);
-  const genderOptions = genderData.map((item) => {
+  }, [watchFields?.sabPalika]);
+
+  const temporaryWardOptions = temporaryWardData.map((item) => {
     return (
       <option
         value={item.id}
         key={item.id}
-        selected={item.id === clickedIdData?.genderId}
+        selected={item?.id === clickedIdData?.clickedIdData?.sabWard}
       >
         {item.name}
       </option>
     );
   });
-
-  //   for relation
-  const [relationData, setRelationData] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { status, data } = await relation();
-        if (status) {
-          setRelationData(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
-  const relationOptions = relationData.map((item) => {
-    return (
-      <option
-        value={item.id}
-        key={item.id}
-        selected={item.id === clickedIdData?.relationId}
-      >
-        {item.name}
-      </option>
-    );
-  });
-
   //   design
   const titleRef = useRef(null);
 
@@ -250,89 +331,64 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
   }, []);
 
   // For date picker
-  const [nagariktIssueDate, setNagariktIssueDate] = useState(aa);
-  const [janmaMiti, setJanmaMiti] = useState(aa);
+  const [janmaDateToBe, setJanmaDateToBe] = useState(aa);
+  const [differentJanmaDate, setDifferentJanmaDate] = useState(aa);
 
   useEffect(() => {
     if (clickedIdData) {
-      setNagariktIssueDate(clickedIdData?.nagariktIssueDate || aa);
-      setJanmaMiti(clickedIdData?.janmaMiti || aa);
+      setJanmaDateToBe(clickedIdData?.janmaDateToBe || aa);
+      setDifferentJanmaDate(clickedIdData?.differentJanmaDate || aa);
     }
   }, [clickedIdData]);
 
   //   for dynamic form
-  const [personDetails, setPersonDetails] = useState([
+  const [
+    farakJanmaMitiCorrectionInsertViewModelList,
+    setFarakJanmaMitiCorrectionInsertViewModelList,
+  ] = useState([
     {
-      name: "",
-      nameENg: "",
-      genderId: "",
-      relationId: "",
-      nagritaNo: "",
-      nagariktaIssueDatePersonal: "",
+      janmaDateToBe: janmaDateToBe,
+      differentJanmaDate: differentJanmaDate,
+      namilekoKagjat: "",
     },
   ]);
-  console.log(personDetails, "hellos");
+  console.log(farakJanmaMitiCorrectionInsertViewModelList, "hellos");
 
-  const handleAddPersonDetails = () => {
-    setPersonDetails([
-      ...personDetails,
+  const handleAddFarakJanmaMiti = () => {
+    setFarakJanmaMitiCorrectionInsertViewModelList([
+      ...farakJanmaMitiCorrectionInsertViewModelList,
       {
-        name: "",
-        nameENg: "",
-        genderId: "",
-        nagritaNo: "",
-        nagariktaIssueDatePersonal: "",
-        relationId: "",
+        janmaDateToBe: janmaDateToBe,
+        differentJanmaDate: differentJanmaDate,
+        namilekoKagjat: "",
       },
     ]);
   };
 
-  const handleDeletePersonDetails = (index) => {
-    const list = [...personDetails];
+  const handleDeleteFarakJanmaMiti = (index) => {
+    const list = [...farakJanmaMitiCorrectionInsertViewModelList];
     list.splice(index, 1);
-    setPersonDetails(list);
+    setFarakJanmaMitiCorrectionInsertViewModelList(list);
   };
 
-  const handleNameChange = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...personDetails];
-    list[index][name] = value;
-    setPersonDetails(list);
+  // Assuming date is in the correct format
+  const handleChangeHunuParneMiti = (date, index) => {
+    const list = [...farakJanmaMitiCorrectionInsertViewModelList];
+    list[index].janmaDateToBe = date;
+    setFarakJanmaMitiCorrectionInsertViewModelList(list);
   };
 
-  const handleNameEngChange = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...personDetails];
-    list[index][name] = value;
-    setPersonDetails(list);
+  const handleChangeNaMilekoMiti = (date, index) => {
+    const list = [...farakJanmaMitiCorrectionInsertViewModelList];
+    list[index].differentJanmaDate = date;
+    setFarakJanmaMitiCorrectionInsertViewModelList(list);
   };
 
-  const handleGenderChange = (e, index) => {
+  const handleChangeNamilekoKagjat = (e, index) => {
     const { name, value } = e.target;
-    const list = [...personDetails];
+    const list = [...farakJanmaMitiCorrectionInsertViewModelList];
     list[index][name] = value;
-    setPersonDetails(list);
-  };
-
-  const handleRelationChange = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...personDetails];
-    list[index][name] = value;
-    setPersonDetails(list);
-  };
-
-  const handleNagritaNoChange = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...personDetails];
-    list[index][name] = value;
-    setPersonDetails(list);
-  };
-
-  const handleNagariktIssueDatePersonal = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...personDetails];
-    list[index][name] = value;
-    setPersonDetails(list);
+    setFarakJanmaMitiCorrectionInsertViewModelList(list);
   };
 
   return (
@@ -348,7 +404,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer requiredField "
-              {...register("naamThar")}
+              {...register("name_Nep")}
               placeholder="."
             />
             <label className="label">
@@ -360,7 +416,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer "
-              {...register("naamThar")}
+              {...register("name_Eng")}
               placeholder="."
             />
             <label className="label">नाम(English) </label>
@@ -370,7 +426,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer  "
-              {...register("naamThar")}
+              {...register("fatherName_Eng")}
               placeholder="."
             />
             <label className="label">बाबुको नाम(English)</label>
@@ -380,7 +436,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer requiredField "
-              {...register("naamThar")}
+              {...register("fatherName_Nep")}
               placeholder="."
             />
             <label className="label">
@@ -391,7 +447,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer  "
-              {...register("naamThar")}
+              {...register("motherName_Eng")}
               placeholder="."
             />
             <label className="label">आमाको नाम(English)</label>
@@ -401,7 +457,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer requiredField "
-              {...register("naamThar")}
+              {...register("motherName_Nep")}
               placeholder="."
             />
             <label className="label">
@@ -413,7 +469,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer  "
-              {...register("naamThar")}
+              {...register("citizenNo_Father")}
               placeholder="."
             />
             <label className="label">बाबुको ना.प्र.प.नं.</label>
@@ -423,10 +479,96 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             <input
               type="string"
               className="peer  "
-              {...register("naamThar")}
+              {...register("citizenNo_Mother")}
               placeholder="."
             />
             <label className="label">आमाको ना.प्र.प.नं.</label>
+          </div>
+        </div>
+
+        <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
+          (क).स्थायी ठेगाना
+        </div>
+        <div className="grid lg:grid-cols-4  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">प्रदेश</label>
+            <select {...register("state")} className="peer">
+              <option value={""}>--- प्रदेश छानुहोस ---</option>
+              {parmanentStateOptions}
+            </select>
+            <p> {errors?.state?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">जिल्ला</label>
+            <select {...register("district")} className="peer">
+              <option value={""}>--- जिल्ला छानुहोस ---</option>
+              {parmanentDistrictOptions}
+            </select>
+            <p> {errors?.district?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">गा.पा./न.पा.</label>
+            <select {...register("palika")} className="peer">
+              <option value={""}>--- गा.पा./न.पा. छानुहोस ---</option>
+              {parmanentPalikaOptions}
+            </select>
+            <p> {errors?.palika?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label">वडा नं</label>
+            <select className="peer" {...register("ward")}>
+              <option value={""}>--- वडा नं छानुहोस ---</option>
+              {parmanentWardOptions}
+            </select>
+            <p> {errors?.ward?.message}</p>
+          </div>
+          <FormControlLabel
+            className="pl-3"
+            {...register("isActive")}
+            control={
+              <Checkbox
+                color="primary"
+                defaultChecked={clickedIdData?.isActive}
+              />
+            }
+            label="स्थायी ठेगाना नै अस्थायी ठेगाना भए"
+          />
+        </div>
+        <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
+          (ख).अस्थायी ठेगाना
+        </div>
+        <div className="grid lg:grid-cols-4 shadow-2xl bg-gray-100 gap-5 px-5 pt-6 border border-black border-dashed">
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">प्रदेश</label>
+            <select {...register("sabState")} className="peer">
+              <option value={""}>--- प्रदेश छानुहोस ---</option>
+              {temporaryStateOptions}
+            </select>
+            <p> {errors?.sabState?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">जिल्ला</label>
+            <select {...register("sabDistrict")} className="peer">
+              <option value={""}>--- जिल्ला छानुहोस ---</option>
+              {temporaryDistrictOptions}
+            </select>
+            <p> {errors?.sabDistrict?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label text-blue-900 ">गा.पा./न.पा.</label>
+            <select {...register("sabPalika")} className="peer">
+              <option value={""}>--- गा.पा./न.पा. छानुहोस ---</option>
+              {temporaryPalikaOptions}
+            </select>
+            <p> {errors?.sabPalika?.message}</p>
+          </div>
+          <div className="relative z-0 w-full mb-6 group">
+            <label className="label">वडा नं</label>
+            <select className="peer" {...register("sabWard")}>
+              <option value={""}>--- वडा नं छानुहोस ---</option>
+              {temporaryWardOptions}
+            </select>
+            <p> {errors?.sabWard?.message}</p>
           </div>
         </div>
 
@@ -437,7 +579,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
 
           <div
             className="bg-green-300 hover:bg-green-500 px-6 py-3 rounded shadow-lg cursor-pointer "
-            onClick={handleAddPersonDetails}
+            onClick={handleAddFarakJanmaMiti}
           >
             <div className="flex  gap-2 ">
               <FaPlus size={20} />
@@ -460,7 +602,7 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
           <div className=" ">कार्य </div>
         </div>
 
-        {personDetails.map((detail, index) => {
+        {farakJanmaMitiCorrectionInsertViewModelList.map((detail, index) => {
           return (
             <div
               key={index}
@@ -468,17 +610,19 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             >
               <div className="border-2 rounded-md border-gray-300  items-center flex justify-center pl-4 ">
                 <NepaliDatePicker
-                  value={detail.nagariktaIssueDatePersonal}
+                  name="janmaDateToBe"
+                  value={detail.janmaDateToBe}
                   className="peer "
-                  onChange={(e) => handleNagariktIssueDatePersonal(e, index)}
+                  onChange={(e) => handleChangeHunuParneMiti(e, index)}
                   options={{ calenderLocale: "ne", valueLocale: "en" }}
                 />
               </div>
               <div className="border-2 rounded-md border-gray-300  items-center flex justify-center pl-4 ">
                 <NepaliDatePicker
-                  value={detail.nagariktaIssueDatePersonal}
+                  name="differentJanmaDate"
+                  value={detail.differentJanmaDate}
                   className="peer "
-                  onChange={(e) => handleNagariktIssueDatePersonal(e, index)}
+                  onChange={(e) => handleChangeNaMilekoMiti(e, index)}
                   options={{ calenderLocale: "ne", valueLocale: "en" }}
                 />
               </div>
@@ -486,18 +630,18 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
               <input
                 type="string"
                 className="border-2 border-gray-300  rounded-lg "
-                name="name"
-                value={detail.nagritaNo}
-                onChange={(e) => handleNagritaNoChange(e, index)}
+                name="namilekoKagjat"
+                value={detail.namilekoKagjat}
+                onChange={(e) => handleChangeNamilekoKagjat(e, index)}
                 placeholder="."
               />
 
               <div className="py-2">
-                {personDetails.length > 1 && (
+                {farakJanmaMitiCorrectionInsertViewModelList.length > 1 && (
                   <div className="flex justify-center   ">
                     <button
                       className="bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded py-2 "
-                      onClick={() => handleDeletePersonDetails(index)}
+                      onClick={() => handleDeleteFarakJanmaMiti(index)}
                     >
                       <FaTrashAlt size={20} />
                     </button>
@@ -507,128 +651,6 @@ export default function CreateFarakFarakJanmaMiti({ clickedIdData }) {
             </div>
           );
         })}
-
-        <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
-          ३. स्थायी ठेगाना
-        </div>
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              प्रदेश <span className="requiredField">*</span>{" "}
-            </label>
-            <select
-              {...register("permaPradeshId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {stateOptions}
-            </select>
-            <p> {errors?.permaPradeshId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group ">
-            <label className="label text-blue-900 ">
-              जिल्ला<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {districtOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              वडा नं<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- वडा नं छान्नुहोस् ---</option>
-              {wardOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              गा.पा./न.पा.<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {palikaOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-        </div>
-
-        <div className=" bg-[#5197d1] text-center text-white text-2xl py-3 rounded-xl font-bold ">
-          ४. अस्थायी ठेगाना
-        </div>
-        <div className="grid lg:grid-cols-5  gap-5 px-5 pt-10 border border-black border-dashed shadow-2xl bg-gray-100  ">
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              प्रदेश <span className="requiredField">*</span>{" "}
-            </label>
-            <select
-              {...register("permaPradeshId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- प्रदेश छान्नुहोस् ---</option>
-              {stateOptions}
-            </select>
-            <p> {errors?.permaPradeshId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group ">
-            <label className="label text-blue-900 ">
-              जिल्ला<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- जिल्ला छान्नुहोस् ---</option>
-              {districtOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              वडा नं<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- वडा नं छान्नुहोस् ---</option>
-              {wardOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-
-          <div className="relative z-0 w-full mb-6 group">
-            <label className="label text-blue-900 ">
-              गा.पा./न.पा.<span className="requiredField">*</span>
-            </label>
-            <select
-              {...register("permaDistrictId")}
-              className="peer requiredField"
-            >
-              <option value={""}>--- गा.पा./न.पा. छान्नुहोस् ---</option>
-              {palikaOptions}
-            </select>
-            <p> {errors?.permaDistrictId?.message}</p>
-          </div>
-        </div>
 
         <AddButton
           icon={<FaPlus />}
